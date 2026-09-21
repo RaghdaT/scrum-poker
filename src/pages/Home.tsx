@@ -30,6 +30,21 @@ function Home() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const textFieldSx = {
+    "& .MuiInputBase-input": {
+      fontSize: "0.95rem",
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "0.95rem",
+    },
+  };
+
+  const actionButtonSx = {
+    fontSize: "0.9rem",
+    fontWeight: 800,
+    py: 1.1,
+  };
+
   async function handleCreateRoom() {
     setError(null);
 
@@ -130,6 +145,9 @@ function Home() {
       <Paper
         elevation={4}
         sx={{
+          borderRadius: 3,
+          maxWidth: 860,
+          mx: "auto",
           width: "100%",
           p: {
             xs: 3,
@@ -141,15 +159,15 @@ function Home() {
           {/* Header */}
           <Box sx={{ textAlign: "center" }}>
             <Typography
-              variant="h3"
+              variant="h4"
               component="h1"
-              sx={{ fontWeight: 700, color:"black" }}
+              sx={{ fontWeight: 800, color: "black" }}
               gutterBottom
             >
               🃏 Scrum Poker
             </Typography>
 
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               Estimate your stories together.
             </Typography>
           </Box>
@@ -171,6 +189,8 @@ function Home() {
               fullWidth
               required
               autoFocus
+              size="small"
+              sx={textFieldSx}
             />
           </Box>
 
@@ -199,6 +219,8 @@ function Home() {
                 onChange={(event) => setTaskId(event.target.value)}
                 fullWidth
                 required
+                size="small"
+                sx={textFieldSx}
               />
 
               <TextField
@@ -207,14 +229,16 @@ function Home() {
                 value={taskName}
                 onChange={(event) => setTaskName(event.target.value)}
                 fullWidth
+                size="small"
+                sx={textFieldSx}
               />
 
               <Button
                 variant="contained"
-                size="large"
                 onClick={handleCreateRoom}
                 loading={loading}
                 disabled={loading}
+                sx={actionButtonSx}
               >
                 Create Room
               </Button>
@@ -249,14 +273,16 @@ function Home() {
                   setRoomCode(event.target.value.toUpperCase())
                 }
                 fullWidth
+                size="small"
+                sx={textFieldSx}
               />
 
               <Button
                 variant="outlined"
-                size="large"
                 onClick={handleJoinRoom}
                 loading={loading}
                 disabled={loading}
+                sx={actionButtonSx}
               >
                 Join Room
               </Button>

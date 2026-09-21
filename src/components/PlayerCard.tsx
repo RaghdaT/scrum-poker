@@ -15,6 +15,7 @@ interface PlayerCardProps {
   isCurrentUser?: boolean;
   revealed?: boolean;
   vote?: PokerValue;
+  compact?: boolean;
 }
 
 function PlayerCard({
@@ -23,6 +24,7 @@ function PlayerCard({
   isCurrentUser = false,
   revealed = false,
   vote,
+  compact = false,
 }: PlayerCardProps) {
   const hasRevealedVote = revealed && vote !== undefined;
   const displayValue = hasRevealedVote ? formatPokerValue(vote) : "?";
@@ -44,10 +46,12 @@ function PlayerCard({
         bgcolor: active
           ? "rgba(46, 125, 50, 0.06)"
           : "background.paper",
+        boxShadow: compact ? "none" : undefined,
+        minWidth: compact ? 116 : undefined,
       }}
     >
-      <CardContent>
-        <Stack spacing={1.25} sx={{ alignItems: "center" }}>
+      <CardContent sx={{ p: compact ? 1 : 2, "&:last-child": { pb: compact ? 1 : 2 } }}>
+        <Stack spacing={compact ? 0.75 : 1.25} sx={{ alignItems: "center" }}>
           <Box
             sx={{
               alignItems: "center",
@@ -57,10 +61,10 @@ function PlayerCard({
               borderRadius: 1,
               color: active ? "success.main" : "text.secondary",
               display: "flex",
-              fontSize: "2rem",
+              fontSize: compact ? "1.5rem" : "2rem",
               fontWeight: 800,
               justifyContent: "center",
-              width: "clamp(56px, 42%, 86px)",
+              width: compact ? 50 : "clamp(56px, 42%, 86px)",
             }}
           >
             {displayValue}
@@ -75,6 +79,7 @@ function PlayerCard({
                 fontWeight: 700,
                 maxWidth: "100%",
                 overflowWrap: "anywhere",
+                fontSize: compact ? "0.9rem" : undefined,
                 textAlign: "center",
               }}
             >
@@ -86,7 +91,7 @@ function PlayerCard({
               <Typography
                 color={active ? "success.main" : "text.secondary"}
                 variant="body2"
-                sx={{ fontWeight: 700 }}
+                sx={{ fontSize: compact ? "0.78rem" : undefined, fontWeight: 700 }}
               >
                 {statusText}
               </Typography>

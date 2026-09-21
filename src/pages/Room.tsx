@@ -358,115 +358,144 @@ function Room() {
     );
   }
 
+  const topSeatCount = votingPlayers.length <= 4 ? 2 : 3;
+  const topSeats = votingPlayers.slice(0, topSeatCount);
+  const sideSeats = votingPlayers.slice(topSeatCount, topSeatCount + 2);
+  const bottomSeats = votingPlayers.slice(topSeatCount + 2);
+
+  const renderSeat = ([playerId, player]: (typeof votingPlayers)[number]) => (
+    <PlayerCard
+      key={playerId}
+      name={player.name}
+      hasVoted={player.hasVoted === true}
+      isCurrentUser={playerId === currentUserId}
+      revealed={revealed}
+      vote={revealedVotes[playerId]}
+      compact
+    />
+  );
+
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Stack spacing={3}>
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            {room.task.id}
-          </Typography>
-
-          {room.task.name && (
-            <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {room.task.name}
+    <Container
+      maxWidth={false}
+      sx={{
+        bgcolor: "#f7faff",
+        minHeight: "100vh",
+        px: { xs: 2, md: 5 },
+        py: 3,
+      }}
+    >
+      <Stack spacing={4}>
+        <Paper
+          elevation={0}
+          sx={{
+            alignItems: "center",
+            borderRadius: 3,
+            display: "flex",
+            justifyContent: "space-between",
+            px: { xs: 2, sm: 3 },
+            py: 2,
+          }}
+        >
+          <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontSize: "1.35rem", fontWeight: 800 }}>
+              {room.task.id}
             </Typography>
-          )}
 
-          <Typography color="text.secondary">
-            Room: {roomId} - Joining as: {currentPlayer.name}
-          </Typography>
+            {room.task.name && (
+              <Typography color="text.secondary" sx={{ fontWeight: 700 }}>
+                {room.task.name}
+              </Typography>
+            )}
+
+            <Typography color="text.secondary" variant="body2">
+              Room: {roomId}
+            </Typography>
+          </Stack>
+
+          <Stack spacing={0.25} sx={{ alignItems: "flex-end", minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 800 }}>
+              {currentPlayer.name}
+              {isHost ? " - Host" : ""}
+            </Typography>
+
+            <Typography color="text.secondary" variant="body2">
+              Joining as
+            </Typography>
+          </Stack>
         </Paper>
 
-        <Paper sx={{ p: 3 }}>
-          <Stack spacing={2}>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1}
-              sx={{
-                alignItems: { xs: "flex-start", sm: "center" },
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography variant="h6">
-                {revealed
-                  ? "Results"
-                  : isHost
-                    ? "Voting progress"
-                    : "Cast your vote"}
-              </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gap: { xs: 2, md: 3 },
+            gridTemplateColumns: { xs: "1fr", md: "160px minmax(0, 1fr) 160px" },
+            gridTemplateRows: { md: "auto auto auto" },
+            mx: "auto",
+            width: "min(100%, 920px)",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              gridColumn: { md: "2" },
+              justifyContent: "center",
+            }}
+          >
+            {topSeats.map(renderSeat)}
+          </Box>
 
-              <Typography color="text.secondary">
-                {revealed
-                  ? "Revealed"
-                  : `${votedCount} of ${votingPlayers.length} voted`}
-              </Typography>
-            </Stack>
+          <Box
+            sx={{
+              display: "flex",
+              gridColumn: { md: "1" },
+              gridRow: { md: "2" },
+              justifyContent: "center",
+            }}
+          >
+            {sideSeats[0] && renderSeat(sideSeats[0])}
+          </Box>
 
-            {error && (
-              <Alert severity="error">
-                {error}
-              </Alert>
-            )}
+          <Paper
+            elevation={0}
+            sx={{
+              alignItems: "center",
+              bgcolor: "#ddebff",
+              borderRadius: 5,
+              display: "flex",
+              gridColumn: { md: "2" },
+              gridRow: { md: "2" },
+              justifyContent: "center",
+              minHeight: 170,
+              p: 3,
+            }}
+          >
+            <Stack spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+              <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                <Typography sx={{ fontSize: "1.2rem", fontWeight: 800 }}>
+                  {revealed
+                    ? "Results"
+                    : isHost
+                      ? "Voting progress"
+                      : "Choose your card"}
+                </Typography>
 
-            {!isHost && notice && (
-              <Alert severity="warning">
-                {notice}
-              </Alert>
-            )}
+                <Typography color="text.secondary">
+                  {revealed
+                    ? "Revealed"
+                    : `${votedCount} of ${votingPlayers.length} voted`}
+                </Typography>
+              </Stack>
 
-            {!isHost && !revealed && (
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "repeat(3, minmax(0, 1fr))",
-                    sm: "repeat(6, minmax(0, 1fr))",
-                  },
-                  gap: 1.5,
-                }}
-              >
-                {POKER_VALUES.map((value) => {
-                  const selected =
-                    selectedVote === value;
+              {error && <Alert severity="error">{error}</Alert>}
 
-                  const label =
-                    value === "coffee"
-                      ? "\u2615"
-                      : value;
+              {!isHost && notice && (
+                <Alert severity="warning">{notice}</Alert>
+              )}
 
-                  return (
-                    <Button
-                      key={value}
-                      variant={
-                        selected
-                          ? "contained"
-                          : "outlined"
-                      }
-                      color={
-                        selected
-                          ? "success"
-                          : "primary"
-                      }
-                      disabled={voting}
-                      onClick={() =>
-                        handleVote(value)
-                      }
-                      sx={{
-                        aspectRatio: "3 / 4",
-                        minWidth: 0,
-                        fontSize: "1.75rem",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {label}
-                    </Button>
-                  );
-                })}
-              </Box>
-            )}
-
-            {isHost && !revealed && (
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              {isHost && !revealed && (
                 <Button
                   variant="contained"
                   onClick={handleRevealVotes}
@@ -475,95 +504,126 @@ function Room() {
                 >
                   Reveal Votes
                 </Button>
-              </Box>
-            )}
+              )}
 
-            {isHost && revealed && (
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              {isHost && revealed && (
                 <Button
                   variant="contained"
                   onClick={() => setNewTaskDialogOpen(true)}
                 >
                   New Task
                 </Button>
-              </Box>
-            )}
+              )}
 
-            {revealed && (
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
-                sx={{
-                  justifyContent: "center",
-                }}
-              >
-                <Typography>
-                  Most common:{" "}
-                  {mostCommonVotes.length === 0
-                    ? "-"
-                    : mostCommonVotes.map(formatPokerValue).join(", ")}
-                </Typography>
+              {revealed && (
+                <Stack spacing={1} sx={{ alignItems: "center" }}>
+                  <Typography>
+                    Most common:{" "}
+                    {mostCommonVotes.length === 0
+                      ? "-"
+                      : mostCommonVotes.map(formatPokerValue).join(", ")}
+                  </Typography>
 
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={1}
-                  sx={{
-                    alignItems: { xs: "center", sm: "baseline" },
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography>Counts:</Typography>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    sx={{
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography>Counts:</Typography>
 
-                  {voteCounts.length === 0 ? (
-                    <Typography>-</Typography>
-                  ) : (
-                    voteCounts.map(([vote, count]) => (
-                      <Typography
-                        key={vote}
-                        component="span"
-                        sx={{ fontWeight: 700 }}
-                      >
-                        {formatPokerValue(vote)} {"\u2192"} {count}
-                      </Typography>
-                    ))
-                  )}
+                    {voteCounts.length === 0 ? (
+                      <Typography>-</Typography>
+                    ) : (
+                      voteCounts.map(([vote, count]) => (
+                        <Typography
+                          key={vote}
+                          component="span"
+                          sx={{ fontWeight: 700 }}
+                        >
+                          {formatPokerValue(vote)} {"\u2192"} {count}
+                        </Typography>
+                      ))
+                    )}
+                  </Stack>
                 </Stack>
-              </Stack>
-            )}
-          </Stack>
-        </Paper>
+              )}
+            </Stack>
+          </Paper>
 
-        <Paper sx={{ p: 3 }}>
-          <Stack spacing={2}>
-            <Typography variant="h6">
-              Participants
+          <Box
+            sx={{
+              display: "flex",
+              gridColumn: { md: "3" },
+              gridRow: { md: "2" },
+              justifyContent: "center",
+            }}
+          >
+            {sideSeats[1] && renderSeat(sideSeats[1])}
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              gridColumn: { md: "1 / 4" },
+              gridRow: { md: "3" },
+              justifyContent: "center",
+            }}
+          >
+            {[...bottomSeats, ...sideSeats.slice(2)].map(renderSeat)}
+          </Box>
+        </Box>
+
+        {!isHost && !revealed && (
+          <Stack spacing={2} sx={{ alignItems: "center" }}>
+            <Typography color="text.secondary" sx={{ fontWeight: 700 }}>
+              Choose your card
             </Typography>
 
             <Box
               sx={{
                 display: "grid",
-                gap: 2,
+                gap: 1.5,
                 gridTemplateColumns: {
-                  xs: "repeat(2, minmax(0, 1fr))",
-                  sm: "repeat(3, minmax(0, 1fr))",
-                  md: "repeat(4, minmax(0, 1fr))",
+                  xs: "repeat(3, minmax(0, 1fr))",
+                  sm: "repeat(6, 72px)",
                 },
+                justifyContent: "center",
+                width: "100%",
               }}
             >
-              {votingPlayers.map(([playerId, player]) => (
-                <PlayerCard
-                  key={playerId}
-                  name={player.name}
-                  hasVoted={player.hasVoted === true}
-                  isCurrentUser={playerId === currentUserId}
-                  revealed={revealed}
-                  vote={revealedVotes[playerId]}
-                />
-              ))}
+              {POKER_VALUES.map((value) => {
+                const selected = selectedVote === value;
+                const label = value === "coffee" ? "\u2615" : value;
+
+                return (
+                  <Button
+                    key={value}
+                    variant={selected ? "contained" : "outlined"}
+                    color={selected ? "success" : "primary"}
+                    disabled={voting}
+                    onClick={() => handleVote(value)}
+                    sx={{
+                      aspectRatio: "3 / 4",
+                      bgcolor: selected ? "#3b82f6" : "background.paper",
+                      borderRadius: 1.5,
+                      fontSize: "1.5rem",
+                      fontWeight: 800,
+                      minWidth: 0,
+                    }}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
             </Box>
           </Stack>
-        </Paper>
+        )}
       </Stack>
 
       <NewTaskDialog
