@@ -6,5 +6,7 @@ export const POKER_VALUES: PokerValue[] = [
   5,
   8,
   13,
+  20,
+  "skipped",
   "coffee",
 ];

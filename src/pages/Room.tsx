@@ -33,7 +33,6 @@ import type {
 
 import { POKER_VALUES } from "../utils/poker";
 import {
-  countVotes,
   findMostCommonVotes,
   formatPokerValue,
 } from "../utils/results";
@@ -305,7 +304,6 @@ function Room() {
     .map(([playerId]) => revealedVotes[playerId])
     .filter((vote): vote is PokerValue => vote !== undefined);
   const mostCommonVotes = findMostCommonVotes(revealedVoteValues);
-  const voteCounts = countVotes(revealedVoteValues);
 
   if (!currentPlayer) {
     return (
@@ -416,11 +414,10 @@ function Room() {
           <Stack spacing={0.25} sx={{ alignItems: "flex-end", minWidth: 0 }}>
             <Typography sx={{ fontWeight: 800 }}>
               {currentPlayer.name}
-              {isHost ? " - Host" : ""}
             </Typography>
 
             <Typography color="text.secondary" variant="body2">
-              Joining as
+              {isHost ? "Host" : "Participant"}
             </Typography>
           </Stack>
         </Paper>
@@ -452,6 +449,7 @@ function Room() {
               display: "flex",
               gridColumn: { md: "1" },
               gridRow: { md: "2" },
+              alignItems: "center",
               justifyContent: "center",
             }}
           >
@@ -517,38 +515,12 @@ function Room() {
 
               {revealed && (
                 <Stack spacing={1} sx={{ alignItems: "center" }}>
-                  <Typography>
-                    Most common:{" "}
-                    {mostCommonVotes.length === 0
-                      ? "-"
-                      : mostCommonVotes.map(formatPokerValue).join(", ")}
-                  </Typography>
-
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1}
-                    sx={{
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography>Counts:</Typography>
-
-                    {voteCounts.length === 0 ? (
-                      <Typography>-</Typography>
-                    ) : (
-                      voteCounts.map(([vote, count]) => (
-                        <Typography
-                          key={vote}
-                          component="span"
-                          sx={{ fontWeight: 700 }}
-                        >
-                          {formatPokerValue(vote)} {"\u2192"} {count}
-                        </Typography>
-                      ))
-                    )}
-                  </Stack>
+                  {mostCommonVotes.length > 0 && (
+                    <Typography>
+                      Most common:{" "}
+                      {mostCommonVotes.map(formatPokerValue).join(", ")}
+                    </Typography>
+                  )}
                 </Stack>
               )}
             </Stack>
@@ -559,6 +531,7 @@ function Room() {
               display: "flex",
               gridColumn: { md: "3" },
               gridRow: { md: "2" },
+              alignItems: "center",
               justifyContent: "center",
             }}
           >
@@ -591,7 +564,7 @@ function Room() {
                 gap: 1.5,
                 gridTemplateColumns: {
                   xs: "repeat(3, minmax(0, 1fr))",
-                  sm: "repeat(6, 72px)",
+                  sm: "repeat(8, 72px)",
                 },
                 justifyContent: "center",
                 width: "100%",
@@ -599,7 +572,7 @@ function Room() {
             >
               {POKER_VALUES.map((value) => {
                 const selected = selectedVote === value;
-                const label = value === "coffee" ? "\u2615" : value;
+                const label = formatPokerValue(value);
 
                 return (
                   <Button

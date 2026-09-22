@@ -1,4 +1,4 @@
-export type PokerValue = 1 | 3 | 5 | 8 | 13 | "coffee";
+export type PokerValue = 1 | 3 | 5 | 8 | 13 | 20 | "skipped" | "coffee";
 
 export type RoomStatus = "voting" | "revealed";
 

@@ -27,13 +27,14 @@ function PlayerCard({
   compact = false,
 }: PlayerCardProps) {
   const hasRevealedVote = revealed && vote !== undefined;
-  const displayValue = hasRevealedVote ? formatPokerValue(vote) : "?";
-  const showStatus = !revealed || !hasRevealedVote;
-  const statusText = revealed
-    ? "No vote"
-    : hasVoted
-      ? "Voted"
-      : "Waiting";
+  const displayValue = hasRevealedVote
+    ? formatPokerValue(vote)
+    : revealed
+      ? "?"
+      : hasVoted
+        ? "\u2713"
+        : "\u23F3";
+  const showStatus = revealed && !hasRevealedVote;
   const active = revealed ? hasRevealedVote : hasVoted;
 
   return (
@@ -41,13 +42,13 @@ function PlayerCard({
       variant="outlined"
       sx={{
         borderRadius: 2,
-        height: "100%",
         borderColor: active ? "success.main" : "divider",
         bgcolor: active
           ? "rgba(46, 125, 50, 0.06)"
           : "background.paper",
+        height: compact ? 112 : "100%",
         boxShadow: compact ? "none" : undefined,
-        minWidth: compact ? 116 : undefined,
+        width: compact ? 116 : undefined,
       }}
     >
       <CardContent sx={{ p: compact ? 1 : 2, "&:last-child": { pb: compact ? 1 : 2 } }}>
@@ -93,7 +94,7 @@ function PlayerCard({
                 variant="body2"
                 sx={{ fontSize: compact ? "0.78rem" : undefined, fontWeight: 700 }}
               >
-                {statusText}
+                No vote
               </Typography>
             )}
           </Stack>
