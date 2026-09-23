@@ -17,6 +17,7 @@ export interface Room {
   task: Task;
   status: RoomStatus;
   createdAt: number;
+  expiresAt: number;
   players?: Record<string, Player>;
   votes?: Record<string, PokerValue>;
 }

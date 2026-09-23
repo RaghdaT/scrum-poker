@@ -13,7 +13,7 @@ import {
 
 import { auth } from "../firebase/auth";
 
-import { createRoom, joinRoom } from "../services/roomService";
+import { cleanupExpiredRooms, createRoom, joinRoom } from "../services/roomService";
 
 import { navigateToRoom } from "../utils/navigation";
 
@@ -79,9 +79,12 @@ function Home() {
         }),
       };
 
+      await cleanupExpiredRooms(); 
+      
       const roomId = await createRoom(auth.currentUser.uid, task, trimmedName);
 
       navigateToRoom(roomId);
+      
     } catch (err) {
       console.error(err);
 

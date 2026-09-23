@@ -12,11 +12,15 @@ import type { PokerValue, Room, Task } from "../models/room";
 import { generateRoomId } from "../utils/roomId";
 
 function createInitialRoom(hostId: string, task: Task, hostName: string): Room {
+  const currentDate = Date.now();
+  //const ROOM_LIFETIME_MS = 24 * 60 * 60 * 1000;
+  const ROOM_LIFETIME_MS = 2 * 60 * 1000;
   return {
     hostId,
     task,
     status: "voting",
-    createdAt: Date.now(),
+    createdAt: currentDate,
+    expiresAt: currentDate + ROOM_LIFETIME_MS,
     players: {
       [hostId]: {
         name: hostName,
@@ -34,11 +38,14 @@ export async function createRoom(
   const roomId = generateRoomId();
 
   const roomReference = ref(database, `rooms/${roomId}`);
+  const expirationReference = ref(database, `roomExpirations/${roomId}`);
 
   const room = createInitialRoom(hostId, task, hostName);
 
   try {
     await set(roomReference, room);
+
+    await set(expirationReference, room.expiresAt);
 
     return roomId;
   } catch (error) {
@@ -126,9 +133,7 @@ export function subscribeToVotes(
     votesReference,
     (snapshot) => {
       onVotesChanged(
-        snapshot.exists()
-          ? (snapshot.val() as Record<string, PokerValue>)
-          : {},
+        snapshot.exists() ? (snapshot.val() as Record<string, PokerValue>) : {},
       );
     },
     onError,
@@ -154,4 +159,42 @@ export function subscribeToRoom(
     },
     onError,
   );
+}
+
+export async function cleanupExpiredRooms() {
+  const expirationsRef = ref(
+    database,
+    "roomExpirations"
+  );
+
+  const snapshot = await get(expirationsRef);
+
+  if (!snapshot.exists()) {
+    return;
+  }
+
+  const now = Date.now();
+
+  const updates: Record<string, null> = {};
+
+  snapshot.forEach((expirationSnapshot) => {
+    const expiresAt = expirationSnapshot.val();
+    const roomId = expirationSnapshot.key;
+
+    if (
+      roomId &&
+      typeof expiresAt === "number" &&
+      expiresAt <= now
+    ) {
+      updates[`rooms/${roomId}`] = null;
+      updates[`roomExpirations/${roomId}`] = null;
+    }
+  });
+
+  if (Object.keys(updates).length > 0) {
+    await update(
+      ref(database),
+      updates
+    );
+  }
 }
