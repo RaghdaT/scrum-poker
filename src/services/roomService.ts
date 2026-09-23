@@ -13,8 +13,7 @@ import { generateRoomId } from "../utils/roomId";
 
 function createInitialRoom(hostId: string, task: Task, hostName: string): Room {
   const currentDate = Date.now();
-  //const ROOM_LIFETIME_MS = 24 * 60 * 60 * 1000;
-  const ROOM_LIFETIME_MS = 2 * 60 * 1000;
+  const ROOM_LIFETIME_MS = 24 * 60 * 60 * 1000;
   return {
     hostId,
     task,
