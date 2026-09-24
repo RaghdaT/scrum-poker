@@ -13,7 +13,7 @@ import {
 
 import { auth } from "../firebase/auth";
 
-import { cleanupExpiredRooms, createRoom, joinRoom } from "../services/roomService";
+import { cleanupExpiredRooms, createRoom } from "../services/roomService";
 
 import { navigateToRoom } from "../utils/navigation";
 
@@ -21,10 +21,6 @@ function Home() {
   const [name, setName] = useState("");
 
   const [taskId, setTaskId] = useState("");
-
-  const [taskName, setTaskName] = useState("");
-
-  const [roomCode, setRoomCode] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -52,8 +48,6 @@ function Home() {
 
     const trimmedTaskId = taskId.trim();
 
-    const trimmedTaskName = taskName.trim();
-
     if (!trimmedName) {
       setError("Please enter your name.");
       return;
@@ -74,9 +68,6 @@ function Home() {
     try {
       const task = {
         id: trimmedTaskId,
-        ...(trimmedTaskName && {
-          name: trimmedTaskName,
-        }),
       };
 
       await cleanupExpiredRooms(); 
@@ -89,47 +80,6 @@ function Home() {
       console.error(err);
 
       setError("Unable to create the room. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleJoinRoom() {
-    setError(null);
-
-    const trimmedName = name.trim();
-
-    const trimmedRoomCode = roomCode.trim().toUpperCase();
-
-    if (!trimmedName) {
-      setError("Please enter your name.");
-      return;
-    }
-
-    if (!trimmedRoomCode) {
-      setError("Please enter the room code.");
-      return;
-    }
-
-    if (!auth.currentUser) {
-      setError("You are not connected to Firebase. Please refresh the page.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await joinRoom(trimmedRoomCode, auth.currentUser.uid, trimmedName);
-
-      navigateToRoom(trimmedRoomCode);
-    } catch (err) {
-      console.error(err);
-
-      if (err instanceof Error && err.message === "ROOM_NOT_FOUND") {
-        setError("Room not found. Please check the room code.");
-      } else {
-        setError("Unable to join the room. Please try again.");
-      }
     } finally {
       setLoading(false);
     }
@@ -149,7 +99,7 @@ function Home() {
         elevation={4}
         sx={{
           borderRadius: 3,
-          maxWidth: 860,
+          maxWidth: 480,
           mx: "auto",
           width: "100%",
           p: {
@@ -177,8 +127,8 @@ function Home() {
 
           {error && <Alert severity="error">{error}</Alert>}
 
-          {/* Shared Name */}
-          <Box
+          <Stack
+            spacing={2}
             sx={{
               width: "100%",
               maxWidth: 400,
@@ -196,105 +146,28 @@ function Home() {
               size="small"
               sx={textFieldSx}
             />
-          </Box>
+            <TextField
+              label="Task ID"
+              autoComplete="off"
+              placeholder="RPRO-5733"
+              value={taskId}
+              onChange={(event) => setTaskId(event.target.value)}
+              fullWidth
+              required
+              size="small"
+              sx={textFieldSx}
+            />
 
-          {/* Create / Join Sections */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "1fr auto 1fr",
-              },
-              gap: {
-                xs: 3,
-                sm: 4,
-              },
-              alignItems: "start",
-              pt: 1,
-            }}
-          >
-            {/* Create Room */}
-            <Stack spacing={2}>
-              <TextField
-                label="Task ID"
-                autoComplete="off"
-                placeholder="RPRO-5733"
-                value={taskId}
-                onChange={(event) => setTaskId(event.target.value)}
-                fullWidth
-                required
-                size="small"
-                sx={textFieldSx}
-              />
-
-              <TextField
-                label="Task name (optional)"
-                autoComplete="off"
-                placeholder="WBS Estimation"
-                value={taskName}
-                onChange={(event) => setTaskName(event.target.value)}
-                fullWidth
-                size="small"
-                sx={textFieldSx}
-              />
-
-              <Button
-                variant="contained"
-                onClick={handleCreateRoom}
-                loading={loading}
-                disabled={loading}
-                sx={actionButtonSx}
-              >
-                Create Room
-              </Button>
-            </Stack>
-
-            {/* OR */}
-            <Typography
-              variant="body2"
-              sx={{
-                color: "black",
-                textAlign: "center",
-                mt: {
-                  xs: 0,
-                  sm: 8,
-                },
-                alignSelf: {
-                  xs: "center",
-                  sm: "start",
-                },
-              }}
+            <Button
+              variant="contained"
+              onClick={handleCreateRoom}
+              loading={loading}
+              disabled={loading}
+              sx={actionButtonSx}
             >
-              OR
-            </Typography>
-
-            {/* Join Room */}
-            <Stack spacing={2}>
-              <TextField
-                label="Room Code"
-                autoComplete="off"
-                placeholder="ABC123"
-                value={roomCode}
-                onChange={(event) =>
-                  setRoomCode(event.target.value.toUpperCase())
-                }
-                fullWidth
-                size="small"
-                sx={textFieldSx}
-              />
-
-              <Button
-                variant="outlined"
-                onClick={handleJoinRoom}
-                loading={loading}
-                disabled={loading}
-                sx={actionButtonSx}
-              >
-                Join Room
-              </Button>
-            </Stack>
-          </Box>
+              Create Room
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
     </Container>

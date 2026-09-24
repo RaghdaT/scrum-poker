@@ -620,17 +620,13 @@ function Room() {
 
         {!isHost && !revealed && (
           <Stack spacing={2} sx={{ alignItems: "center" }}>
-            <Typography color="text.secondary" sx={{ fontWeight: 700 }}>
-              Choose your card
-            </Typography>
-
             <Box
               sx={{
                 display: "grid",
                 gap: 1.5,
                 gridTemplateColumns: {
                   xs: "repeat(3, minmax(0, 1fr))",
-                  sm: "repeat(8, 72px)",
+                  sm: `repeat(${POKER_VALUES.length}, minmax(0, 72px))`,
                 },
                 justifyContent: "center",
                 width: "100%",

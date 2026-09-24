@@ -27,13 +27,11 @@ function NewTaskDialog({
   onSubmit,
 }: NewTaskDialogProps) {
   const [taskId, setTaskId] = useState("");
-  const [taskName, setTaskName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
       setTaskId("");
-      setTaskName("");
       setError(null);
     }
   }, [open]);
@@ -42,7 +40,6 @@ function NewTaskDialog({
     setError(null);
 
     const trimmedTaskId = taskId.trim();
-    const trimmedTaskName = taskName.trim();
 
     if (!trimmedTaskId) {
       setError("Please enter the task ID.");
@@ -51,9 +48,6 @@ function NewTaskDialog({
 
     await onSubmit({
       id: trimmedTaskId,
-      ...(trimmedTaskName && {
-        name: trimmedTaskName,
-      }),
     });
   }
 
@@ -74,15 +68,6 @@ function NewTaskDialog({
             fullWidth
             required
             autoFocus
-          />
-
-          <TextField
-            label="Task name (optional)"
-            autoComplete="off"
-            placeholder="WBS Estimation"
-            value={taskName}
-            onChange={(event) => setTaskName(event.target.value)}
-            fullWidth
           />
         </Stack>
       </DialogContent>
