@@ -139,7 +139,27 @@ function Room() {
     setCopyFeedback(null);
 
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      const roomUrl = window.location.href;
+
+      if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
+        const link = document.createElement("a");
+        link.href = roomUrl;
+        link.textContent = `Room-${roomId}`;
+
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "text/html": new Blob([link.outerHTML], { type: "text/html" }),
+              "text/plain": new Blob([roomUrl], { type: "text/plain" }),
+            }),
+          ]);
+        } catch {
+          await navigator.clipboard.writeText(roomUrl);
+        }
+      } else {
+        await navigator.clipboard.writeText(roomUrl);
+      }
+
       setCopyFeedback({ severity: "success", message: "Room link copied." });
     } catch {
       setCopyFeedback({
