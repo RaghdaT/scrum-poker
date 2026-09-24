@@ -187,6 +187,7 @@ function Home() {
           >
             <TextField
               label="Your name"
+              autoComplete="off"
               value={name}
               onChange={(event) => setName(event.target.value)}
               fullWidth
@@ -217,6 +218,7 @@ function Home() {
             <Stack spacing={2}>
               <TextField
                 label="Task ID"
+                autoComplete="off"
                 placeholder="RPRO-5733"
                 value={taskId}
                 onChange={(event) => setTaskId(event.target.value)}
@@ -228,6 +230,7 @@ function Home() {
 
               <TextField
                 label="Task name (optional)"
+                autoComplete="off"
                 placeholder="WBS Estimation"
                 value={taskName}
                 onChange={(event) => setTaskName(event.target.value)}
@@ -270,6 +273,7 @@ function Home() {
             <Stack spacing={2}>
               <TextField
                 label="Room Code"
+                autoComplete="off"
                 placeholder="ABC123"
                 value={roomCode}
                 onChange={(event) =>

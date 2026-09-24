@@ -67,6 +67,7 @@ function NewTaskDialog({
 
           <TextField
             label="Task ID"
+            autoComplete="off"
             placeholder="RPRO-5733"
             value={taskId}
             onChange={(event) => setTaskId(event.target.value)}
@@ -77,6 +78,7 @@ function NewTaskDialog({
 
           <TextField
             label="Task name (optional)"
+            autoComplete="off"
             placeholder="WBS Estimation"
             value={taskName}
             onChange={(event) => setTaskName(event.target.value)}

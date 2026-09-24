@@ -377,6 +377,7 @@ function Room() {
 
             <TextField
               label="Your name"
+              autoComplete="off"
               value={name}
               onChange={(event) =>
                 setName(event.target.value)
