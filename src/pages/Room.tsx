@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import {
   Alert,
@@ -6,6 +7,7 @@ import {
   Button,
   Container,
   Paper,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -49,6 +51,12 @@ function Room() {
   const [error, setError] = useState<string | null>(null);
 
   const [notice, setNotice] = useState<string | null>(null);
+
+  const [copyingLink, setCopyingLink] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<{
+    severity: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const [name, setName] = useState("");
 
@@ -125,6 +133,23 @@ function Room() {
 
     previousRoomStatus.current = room?.status;
   }, [room?.status]);
+
+  async function handleCopyRoomLink() {
+    setCopyingLink(true);
+    setCopyFeedback(null);
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyFeedback({ severity: "success", message: "Room link copied." });
+    } catch {
+      setCopyFeedback({
+        severity: "error",
+        message: "Unable to copy the link. Copy it from your browser's address bar.",
+      });
+    } finally {
+      setCopyingLink(false);
+    }
+  }
 
   async function handleJoinRoom() {
     setError(null);
@@ -390,6 +415,7 @@ function Room() {
             alignItems: "center",
             borderRadius: 3,
             display: "flex",
+            gap: 2,
             justifyContent: "space-between",
             px: { xs: 2, sm: 3 },
             py: 2,
@@ -406,9 +432,28 @@ function Room() {
               </Typography>
             )}
 
-            <Typography color="text.secondary" variant="body2">
-              Room: {roomId}
-            </Typography>
+            <Stack direction="row" sx={{ alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+              <Typography color="text.secondary" variant="body2">
+                Room: {roomId}
+              </Typography>
+              {isHost && (
+                <Button
+                  size="small"
+                  endIcon={<ContentCopyIcon />}
+                  onClick={handleCopyRoomLink}
+                  disabled={copyingLink}
+                  sx={{
+                    bgcolor: "#f0f5ff",
+                    borderRadius: 999,
+                    px: 1.5,
+                    textTransform: "none",
+                    letterSpacing: 0,
+                  }}
+                >
+                  Copy room link
+                </Button>
+              )}
+            </Stack>
           </Stack>
 
           <Stack spacing={0.25} sx={{ alignItems: "flex-end", minWidth: 0 }}>
@@ -605,6 +650,23 @@ function Room() {
         onClose={() => setNewTaskDialogOpen(false)}
         onSubmit={handleStartNewTask}
       />
+      <Snackbar
+        open={copyFeedback !== null}
+        autoHideDuration={4000}
+        onClose={(_, reason) => {
+          if (reason !== "clickaway") setCopyFeedback(null);
+        }}
+      >
+        {copyFeedback ? (
+          <Alert
+            severity={copyFeedback.severity}
+            onClose={() => setCopyFeedback(null)}
+            sx={{ width: "100%" }}
+          >
+            {copyFeedback.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
     </Container>
   );
 }
